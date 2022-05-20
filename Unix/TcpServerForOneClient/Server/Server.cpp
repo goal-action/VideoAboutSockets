@@ -7,10 +7,8 @@
 #include <netdb.h> //for addrinfo
 #include <arpa/inet.h>
 #include <netinet/in.h>
-#include <thread>
-#include <chrono>
+#include <unistd.h>
 
-const std::string g_csExitMessage("exit");
 
 class TcpServer
 {
@@ -43,6 +41,14 @@ TcpServer::TcpServer(const std::string csIp, const uint16_t ciPort)
 
 TcpServer::~TcpServer()
 {
+    if(m_pAddr)
+    {
+        freeaddrinfo(m_pAddr);
+    }
+    if(m_iSocket != -1)
+    {
+        close(m_iSocket);
+    }
 }
 
 void TcpServer::Init()
@@ -119,12 +125,12 @@ void TcpServer::HandleClients()
         if(iRes <= 0)
         {
             std::cout << "client closed connection or error occured. Code: " << iRes << std::endl;
+
+            close(iClientSocket);
             break;
         }
         
         std::cout << "[From client] " << sClientMsg << std::endl;
-
-        sClientMsg.clear();
     }
 
 }
