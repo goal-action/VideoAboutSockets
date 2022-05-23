@@ -123,3 +123,22 @@ void UdpServer::Start()
     Init();
     HandleClients();
 }
+
+
+
+int main(int argc, char** argv)
+{
+    if (argc <= 2)
+    {
+        std::cout << "usage: ./prog xxx.xxx.xxx.xxx port" << std::endl;
+        exit(-1);
+    }
+
+    const std::string csIp(argv[1]);
+    const uint16_t iPort = std::atoi(argv[2]);
+
+    UdpServer udpServer(csIp, iPort);
+    udpServer.Start();
+
+    return 0;
+}
