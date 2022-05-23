@@ -75,7 +75,7 @@ void UdpClient::HandleConnection()
 {
     std::string sMsg(1024, '\0');
     int iRes = -1;
-    
+
     while(true)
     {
         std::cout << "Message to the server: ";
@@ -113,8 +113,8 @@ int main(int argc, char** argv)
     const std::string csIp(argv[1]);
     const uint16_t iPort = std::atoi(argv[2]);
 
-    UdpClient client;
-    client.Start(csIp, iPort);
+    UdpClient client(csIp, iPort);
+    client.Start();
 
     std::cout << "End for Client..." << std::endl;
 
