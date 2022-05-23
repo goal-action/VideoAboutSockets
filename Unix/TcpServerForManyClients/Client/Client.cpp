@@ -50,12 +50,12 @@ void TcpClient::HandleConnection()
         std::cout << "Message to the server: ";
         std::getline(std::cin, sMsg);
 
-        send(m_iClientSocket, const_cast<char*>(sMsg.c_str()), sMsg.size(), 0);
-
         if(sMsg == "exit")
         {
             break;
         }
+
+        send(m_iClientSocket, const_cast<char*>(sMsg.c_str()), sMsg.size(), 0);
     }
 }
 
