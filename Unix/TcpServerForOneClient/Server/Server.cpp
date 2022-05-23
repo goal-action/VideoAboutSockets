@@ -124,7 +124,7 @@ void TcpServer::HandleClients()
         iRes = recv(iClientSocket, const_cast<char*>(sClientMsg.c_str()), sClientMsg.size(), 0);        
         if(iRes <= 0)
         {
-            std::cout << "client closed connection or error occured. Code: " << iRes << std::endl;
+            std::cout << "client [" << iClientSocket << "] closed connection or error occured. Code: " << iRes << std::endl;
 
             close(iClientSocket);
             break;
