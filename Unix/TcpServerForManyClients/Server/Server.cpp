@@ -154,9 +154,9 @@ void TcpServer::HandleClients()
                 sClientMsg.resize(1024);
 
                 iRes = recv(m_fds.at(i).fd, const_cast<char*>(sClientMsg.c_str()), sClientMsg.size(), 0);
-                if(iRes == 0)
+                if(iRes <= 0)
                 {
-                    std::cout << "Client disconnection fd = [" << m_fds.at(i).fd << "]" << std::endl;
+                    std::cout << "Client disconnection fd = [" << m_fds.at(i).fd << "] or error occured!" << std::endl;
                     close(m_fds.at(i).fd);
                     m_fds.erase(m_fds.begin() + i);
                     
