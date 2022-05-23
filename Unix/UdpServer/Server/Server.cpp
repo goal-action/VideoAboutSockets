@@ -109,7 +109,7 @@ void UdpServer::HandleClients()
         inet_ntop(AF_INET, &(clientAddr.sin_addr), clientIp, 16);
 
         std::cout << "From client [";
-        for(int i = 0; i < 16; i++)
+        for(int i = 0; i < 15; i++) //15. without '\0'
         {
             std::cout << clientIp[i];
         }
