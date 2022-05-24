@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <cstring> //for memset
+#include <thread>
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -19,7 +20,7 @@ private:
 
 private:
     void Init();
-    void HandleConnection();
+    void SendBroadcastMessages(const int ciCount = 10, const int ciMilliseconds = 5000);
 
 public:
     UdpClient(const std::string csServerIp, const uint16_t ciServerPort);
@@ -68,37 +69,37 @@ void UdpClient::Init()
         exit(-1);
     }
 
+    int broadcast = 1;
+    if (setsockopt(m_iClientSocket, SOL_SOCKET, SO_BROADCAST, &broadcast, sizeof broadcast) == -1)
+    {
+        std::cout << "setsockopt error: " << errno << std::endl;
+        exit(1);
+    }
+
     std::cout << "Initialized!" << std::endl;
 }
 
-void UdpClient::HandleConnection()
+void UdpClient::SendBroadcastMessages(const int ciCount = 10, const int ciMilliseconds = 5000)
 {
-    std::string sMsg(1024, '\0');
+    std::string sMsg("Broadcast message to the server");
     int iRes = -1;
 
-    while(true)
+    for(int i = 0; i < ciCount; i++)
     {
-        std::cout << "Message to the server: ";
-        std::getline(std::cin, sMsg);
-
-        if(sMsg == "exit")
-        {
-            break;
-        }
-
         iRes = sendto(m_iClientSocket, const_cast<char*>(sMsg.c_str()), sMsg.size(), 0, m_pServInfo->ai_addr, m_pServInfo->ai_addrlen);
         if(iRes == -1)
         {
             std::cout << "sendto error: " << errno << std::endl;
             continue;
         }
+        std::this_thread::sleep_for(std::chrono::milliseconds(ciMilliseconds)); //wait for ciMilliseconds milliseconds
     }
 }
 
 void UdpClient::Start()
 {
     Init();
-    HandleConnection();
+    SendBroadcastMessages();
 }
 
 
