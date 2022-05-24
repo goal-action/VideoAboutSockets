@@ -79,7 +79,7 @@ void UdpClient::Init()
     std::cout << "Initialized!" << std::endl;
 }
 
-void UdpClient::SendBroadcastMessages(const int ciCount = 10, const int ciMilliseconds = 5000)
+void UdpClient::SendBroadcastMessages(const int ciCount, const int ciMilliseconds)
 {
     std::string sMsg("Broadcast message to the server");
     int iRes = -1;
