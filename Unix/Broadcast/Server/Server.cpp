@@ -88,33 +88,33 @@ void UdpServer::Init()
 
 void UdpServer::HandleClients()
 {
-    sockaddr_in clientAddr = {0};
-    socklen_t iClientAddrSize = sizeof(clientAddr);
-    
-    //HANDLING
-    int iRes = -1;
+    int iNumOfReadBytes = -1;
+    std::string msg;
+    msg.resize(1024);
+
+    sockaddr_in clientAddr;
+    socklen_t addrLen = sizeof(sockaddr);
+
     while(true)
     {
-        std::string sClientMsg;
-        sClientMsg.resize(1024);
-
-        iRes = recvfrom(m_iSocket, const_cast<char*>(sClientMsg.c_str()), sClientMsg.size(), 0, reinterpret_cast<sockaddr*>(&clientAddr), &iClientAddrSize);       
-        if(iRes == -1)
+        if((iNumOfReadBytes = recvfrom(m_iSocket, const_cast<char*>(msg.c_str()), 1024-1, 0, reinterpret_cast<sockaddr*>(&clientAddr), &addrLen)) == -1)
         {
             std::cout << "recvfrom error: " << errno << std::endl;
             continue;
         }
-        
-        char clientIp[16];
-        inet_ntop(AF_INET, &(clientAddr.sin_addr), clientIp, 16);
 
-        std::cout << "From client [";
-        for(int i = 0; i < 15; i++) //15. without '\0'
+        char ip[16]; //string for ip 
+        inet_ntop(AF_INET, &(clientAddr.sin_addr), ip, 16);
+
+        std::cout << "[";
+        for (int i = 0; i < 16; i++)
         {
-            std::cout << clientIp[i];
+            std::cout << ip[i];
         }
-        std::cout << "] " << sClientMsg << std::endl;
-    }
+        std::cout << "]";
+
+        std::cout << msg << std::endl;
+    }        
 }
 
 
