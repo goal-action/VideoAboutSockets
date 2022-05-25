@@ -2,21 +2,19 @@
 #include <string>
 #include <cstring> //for memset
 
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netdb.h> //for addrinfo
-#include <arpa/inet.h>
-#include <netinet/in.h>
-#include <unistd.h>
+#include <WinSock2.h>
+#include <WS2tcpip.h>
 
 
 class UdpServer
 {
 private:
+    WSAData m_wData;
+
     addrinfo* m_pAddr;
     std::string m_sIp;
     uint16_t m_iPort;
-    int m_iSocket;
+    SOCKET m_iSocket;
 
 private:
     void Init();
@@ -33,10 +31,11 @@ public:
 
 UdpServer::UdpServer(const std::string csIp, const uint16_t ciPort)
     :
+    m_wData{0},
     m_pAddr{ nullptr },
     m_sIp{ csIp },
     m_iPort{ ciPort },
-    m_iSocket{ -1 }
+    m_iSocket{ INVALID_SOCKET }
 {
 }
 
@@ -48,13 +47,24 @@ UdpServer::~UdpServer()
     }
     if (m_iSocket != -1)
     {
-        close(m_iSocket);
+        closesocket(m_iSocket);
+    }
+    if (WSACleanup() == SOCKET_ERROR)
+    {
+        std::cout << "WSACleanup error: " << WSAGetLastError() << std::endl;
     }
 }
 
 
 void UdpServer::Init()
 {
+    if (WSAStartup(MAKEWORD(2, 2), &m_wData) != 0)
+    {
+        std::cout << "WSAStartup error: " << WSAGetLastError() << std::endl;
+        exit(-1);
+    }
+    std::cout << "WSAStartup success!" << std::endl;
+
     addrinfo hints;
     memset(&hints, 0, sizeof(hints));
     hints.ai_family = AF_INET;
@@ -63,22 +73,22 @@ void UdpServer::Init()
     int iRes = -1;
     if ((iRes = getaddrinfo(m_sIp.c_str(), std::to_string(m_iPort).c_str(), &hints, &m_pAddr)) != 0)
     {
-        std::cout << "getaddrinfo error: " << iRes << std::endl;
+        std::cout << "getaddrinfo error: " << WSAGetLastError() << std::endl;
         exit(-1);
     }
     std::cout << "getaddrinfo success!\n";
 
     m_iSocket = socket(m_pAddr->ai_family, m_pAddr->ai_socktype, m_pAddr->ai_protocol);
-    if (m_iSocket == -1)
+    if (m_iSocket == INVALID_SOCKET)
     {
-        std::cout << "socket error: " << errno << std::endl;
+        std::cout << "socket error: " << WSAGetLastError() << std::endl;
         exit(-1);
     }
     std::cout << "socket success!\n";
 
-    if (bind(m_iSocket, m_pAddr->ai_addr, m_pAddr->ai_addrlen) == -1)
+    if (bind(m_iSocket, m_pAddr->ai_addr, m_pAddr->ai_addrlen) == SOCKET_ERROR)
     {
-        std::cout << "bind error: " << errno << std::endl;
+        std::cout << "bind error: " << WSAGetLastError() << std::endl;
         exit(-1);
     }
     std::cout << "bind success!\n";
@@ -91,7 +101,6 @@ void UdpServer::HandleClients()
     sockaddr_in clientAddr = { 0 };
     socklen_t iClientAddrSize = sizeof(clientAddr);
 
-    //HANDLING
     int iRes = -1;
     while (true)
     {
@@ -99,9 +108,9 @@ void UdpServer::HandleClients()
         sClientMsg.resize(1024);
 
         iRes = recvfrom(m_iSocket, const_cast<char*>(sClientMsg.c_str()), sClientMsg.size(), 0, reinterpret_cast<sockaddr*>(&clientAddr), &iClientAddrSize);
-        if (iRes == -1)
+        if (iRes == SOCKET_ERROR)
         {
-            std::cout << "recvfrom error: " << errno << std::endl;
+            std::cout << "recvfrom error: " << WSAGetLastError() << std::endl;
             continue;
         }
 
@@ -113,7 +122,7 @@ void UdpServer::HandleClients()
         {
             std::cout << clientIp[i];
         }
-        std::cout << "] " << sClientMsg << std::endl;
+        std::cout << "] " << sClientMsg.substr(0, iRes) << std::endl;
     }
 }
 
