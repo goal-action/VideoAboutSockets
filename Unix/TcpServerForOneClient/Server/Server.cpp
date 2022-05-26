@@ -61,7 +61,7 @@ void TcpServer::Init()
     int iRes = -1;
     if((iRes = getaddrinfo(m_sIp.c_str(), std::to_string(m_iPort).c_str(), &hints, &m_pAddr)) != 0)
     {
-        std::cout << "getaddrinfo error: " << iRes << std::endl;
+        std::cout << "getaddrinfo error: " << gai_strerror(iRes) << std::endl;
         exit(-1);
     }
     std::cout << "getaddrinfo success!\n";
