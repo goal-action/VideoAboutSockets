@@ -106,7 +106,7 @@ void TcpServer::HandleClients()
     inet_ntop(AF_INET, &(clientAddr.sin_addr), clientIp, 16);
 
     std::cout << "NEW CONNECTION: ";
-    for(int i = 0; i < 16; i++)
+    for(int i = 0; i < 15; i++)
     {
         std::cout << clientIp[i];
     }
