@@ -97,7 +97,7 @@ void UdpServer::HandleClients()
 
     while(true)
     {
-        if((iNumOfReadBytes = recvfrom(m_iSocket, const_cast<char*>(msg.c_str()), 1024-1, 0, reinterpret_cast<sockaddr*>(&clientAddr), &addrLen)) == -1)
+        if((iNumOfReadBytes = recvfrom(m_iSocket, const_cast<char*>(msg.c_str()), msg.size(), 0, reinterpret_cast<sockaddr*>(&clientAddr), &addrLen)) == -1)
         {
             std::cout << "recvfrom error: " << errno << std::endl;
             continue;
